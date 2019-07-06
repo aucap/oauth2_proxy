@@ -12,6 +12,7 @@ import (
 	"net/http/httptest"
 	"net/url"
 	"regexp"
+	"strconv"
 	"strings"
 	"testing"
 	"time"
@@ -1013,6 +1014,22 @@ func TestRequestSignaturePostRequest(t *testing.T) {
 	st.MakeRequestWithExpectedKey("POST", payload, "d90df39e2d19282840252612dd7c81421a372f61")
 	assert.Equal(t, 200, st.rw.Code)
 	assert.Equal(t, st.rw.Body.String(), "signatures match")
+}
+
+func TestDomain(t *testing.T) {
+	for i, tt := range []struct {
+		host, cookieDomain, sub, tld string
+	}{
+		{"internal.example.com", "<default>", "", "internal.example.com"},
+		{"internal.example.com", ".example.com", "internal", ".example.com"},
+		{"foo.internal.example.com", ".example.com", "foo.internal", ".example.com"},
+	} {
+		req := &http.Request{Host: tt.host}
+		p := OAuthProxy{CookieDomain: tt.cookieDomain}
+
+		sub, tld := p.domain(req)
+		assert.Equal(t, tt.sub+", "+tt.tld, sub+", "+tld, strconv.Itoa(i))
+	}
 }
 
 func TestGetRedirect(t *testing.T) {
