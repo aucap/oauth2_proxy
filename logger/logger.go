@@ -96,7 +96,7 @@ type Logger struct {
 // New creates a new Standarderr Logger.
 func New(flag int) *Logger {
 	return &Logger{
-		writer:         os.Stderr,
+		writer:         os.Stdout,
 		flag:           flag,
 		stdEnabled:     true,
 		authEnabled:    true,
